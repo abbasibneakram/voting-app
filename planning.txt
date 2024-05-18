@@ -1,0 +1,7 @@
+Voting Application
+An App where user can vote to registered candidates
+
+Main Functionalities:
+1. user sign in / sign up
+2. list of candidates
+3. 
