@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema({
     },
     email: {
         type: String,
+        unique: true,
     },
     phone: {
         type: String,
@@ -34,6 +35,20 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+})
+
+userSchema.pre('save', async function (next) {
+    const user = this
+    //hash only if new user or current password is changed
+    if (!user.isModified('password')) return next()
+    try {
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(user.password, salt)
+        user.password = hashedPassword
+        next()
+    } catch (err) {
+        console.log(err)
+    }
 })
 
 const User = mongoose.model('User', userSchema)
