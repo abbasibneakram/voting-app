@@ -10,7 +10,12 @@ const signup = async (req, res) => {
         const response = await newUser.save()
         console.log('User added!')
 
-        res.status(201).json({ response: response })
+        const payload = {
+            id: newUser.id,
+        }
+        const token = jwt.sign(payload, process.env.JWT_SECRET)
+
+        res.status(201).json({ data: response, token: token })
     } catch (err) {
         console.log(err)
         res.status(500).json({ error: 'Internal server error!' })

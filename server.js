@@ -14,7 +14,7 @@ app.get('/', (req, res) => {
     console.log('Hello World')
 })
 app.use('/api/v1/user', userRoutes)
-// app.use('/candidate', candidateRoutes)
+app.use('/api/v1/candidate', candidateRoutes)
 const server = app.listen(PORT, () => {
     console.log(`Server listening on port ${PORT}`)
 })
