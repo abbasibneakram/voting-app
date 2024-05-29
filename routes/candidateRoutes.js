@@ -4,16 +4,12 @@ const jwtAuthMiddleware = require('./../middlewares/authMiddleware')
 const {
     addCandidate,
     updateCandidate,
-    // profile,
-    // updatePassword,
+    deleteCandidate,
 } = require('./../controllers/candidateController')
 
-//POST route to add user
-router.post('/', jwtAuthMiddleware, addCandidate)
-router.put('/:id', jwtAuthMiddleware, updateCandidate)
-
-// router.post('/login', login)
-// router.get('/profile', jwtAuthMiddleware, profile)
-// router.patch('/profile/password', jwtAuthMiddleware, updatePassword)
+router.use(jwtAuthMiddleware)
+router.post('/', addCandidate)
+router.put('/:id', updateCandidate)
+router.delete('/:id', deleteCandidate)
 
 module.exports = router

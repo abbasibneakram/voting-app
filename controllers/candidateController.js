@@ -14,15 +14,24 @@ const checkAdmin = async (userId) => {
 const addCandidate = async (req, res) => {
     try {
         if (!(await checkAdmin(req.user.id))) {
-            res.status(404).json({ message: "You don't have admin role" })
-        } else {
-            const candidateData = req.body
-            const newCandidate = new Candidate(candidateData)
-            const response = await newCandidate.save()
-
-            res.status(201).json({ data: response })
-            console.log('Candidate Added')
+            return res
+                .status(403)
+                .json({ message: "You don't have admin role" })
         }
+
+        const candidateData = req.body
+
+        if (!candidateData || Object.keys(candidateData).length === 0) {
+            return res
+                .status(400)
+                .json({ message: 'Candidate data is required' })
+        }
+
+        const newCandidate = new Candidate(candidateData)
+        const response = await newCandidate.save()
+
+        res.status(201).json({ data: response })
+        console.log('Candidate Added')
     } catch (err) {
         console.log(err.message)
         res.status(500).send({ message: 'Internal Server Error' })
@@ -32,32 +41,66 @@ const addCandidate = async (req, res) => {
 const updateCandidate = async (req, res) => {
     try {
         if (!(await checkAdmin(req.user.id))) {
-            res.status(404).json({ message: "You don't have admin role" })
-        } else {
-            const candidateId = req.params.id
-            const updatedData = req.body
-            console.log(updatedData, 'updatedData')
-            if (!updatedData)
-                res.status(404).json({ message: 'Updating data not found' })
-            else {
-                const response = await Candidate.findByIdAndUpdate(
-                    candidateId,
-                    updatedData,
-                    {
-                        new: true, //retrun updated content
-                        runValidators: true, //run mongoose validations
-                    }
-                )
-                if (!response)
-                    res.status(404).json({ message: 'candidate not found!' })
-                res.status(200).json({ data: response })
-                console.log('Candidate Data updated')
-            }
+            return res
+                .status(403)
+                .json({ message: "You don't have admin role" })
         }
+
+        const candidateId = req.params.id
+        const updatedData = req.body
+        console.log(updatedData, 'updatedData')
+
+        if (!updatedData || Object.keys(updatedData).length === 0) {
+            return res
+                .status(400)
+                .json({ message: 'No data provided to update' })
+        }
+
+        const response = await Candidate.findByIdAndUpdate(
+            candidateId,
+            updatedData,
+            {
+                new: true, // return updated document
+                runValidators: true, // run mongoose validations
+            }
+        )
+
+        if (!response) {
+            return res.status(404).json({ message: 'Candidate not found!' })
+        }
+
+        res.status(200).json({ data: response })
+        console.log('Candidate Data updated')
     } catch (err) {
         console.log(err.message)
         res.status(500).send({ message: 'Internal Server Error' })
     }
 }
 
-module.exports = { addCandidate, updateCandidate }
+const deleteCandidate = async (req, res) => {
+    try {
+        if (!(await checkAdmin(req.user.id))) {
+            return res
+                .status(403)
+                .json({ message: "You don't have admin role" })
+        }
+
+        const candidateId = req.params.id
+        const response = await Candidate.findByIdAndDelete(candidateId)
+
+        if (!response) {
+            return res.status(404).json({ message: 'Candidate not found!' })
+        }
+
+        res.status(200).json({
+            message: `Candidate with ID ${candidateId} deleted successfully!`,
+            data: response,
+        })
+        console.log('Candidate Deleted!')
+    } catch (err) {
+        console.log(err.message)
+        res.status(500).send({ message: 'Internal Server Error' })
+    }
+}
+
+module.exports = { addCandidate, updateCandidate, deleteCandidate }
