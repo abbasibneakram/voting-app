@@ -103,4 +103,21 @@ const deleteCandidate = async (req, res) => {
     }
 }
 
-module.exports = { addCandidate, updateCandidate, deleteCandidate }
+const getCandidates = async (req, res) => {
+    try {
+        const candidates = await Candidate.find()
+        if (!candidates || Object.keys(candidates).length === 0) {
+            return res.status(404).send({ message: 'No candidate found' })
+        }
+        res.status(200).json({ candidates: candidates })
+    } catch (err) {
+        console.log(err.message)
+        res.status(500).send({ message: 'Internal Server Error' })
+    }
+}
+module.exports = {
+    addCandidate,
+    updateCandidate,
+    deleteCandidate,
+    getCandidates,
+}
